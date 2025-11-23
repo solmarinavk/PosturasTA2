@@ -18,7 +18,6 @@ from pathlib import Path
 from datetime import timedelta
 from contextlib import contextmanager
 import csv
-import base64
 import statistics
 import logging
 
@@ -26,7 +25,7 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import matplotlib.pyplot as plt
-from IPython.display import HTML, display
+from IPython.display import Video, display
 
 
 # ============================================================================
@@ -846,6 +845,11 @@ def run_sitting_detection_colab():
     try:
         results = pipeline.process_video(input_path, output_path)
 
+        # Descargar automáticamente el video procesado
+        print("\n📥 Descargando video procesado...")
+        files.download(str(output_path))
+        print("✅ Descarga completada")
+
         # Exportar resultados
         print("\n📊 Exportando resultados...")
 
@@ -869,16 +873,11 @@ def run_sitting_detection_colab():
         # Mostrar resumen
         pipeline.print_summary(results)
 
-        # Mostrar video inline
-        print("📹 Video procesado:")
-        with open(output_path, 'rb') as f:
-            video_b64 = base64.b64encode(f.read()).decode()
-            video_html = f'''
-            <video width="720" controls>
-                <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
-            </video>
-            '''
-            display(HTML(video_html))
+        # Mostrar video inline (método más confiable en Colab)
+        print("📹 Reproduciendo video procesado:")
+        print("   (El video también fue descargado automáticamente)\n")
+        display(Video(str(output_path), width=720, embed=True))
+        print("\n💡 Consejo: Si el video no se reproduce inline, ya fue descargado a tu computadora.")
 
         # Mostrar gráfico
         if config.generate_plot and plot_path.exists():
